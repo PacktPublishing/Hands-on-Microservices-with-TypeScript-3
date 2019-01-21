@@ -1,0 +1,14 @@
+{
+  "name": "stage1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node dist/app.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^10.12.2"
+  }
+}

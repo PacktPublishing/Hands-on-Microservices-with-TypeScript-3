@@ -1,0 +1,11 @@
+{
+    "files.exclude": {
+       // "**/*.js": {"when": "$(basename).ts"},
+        "**/*.js.map":true,
+        "**/*.d.ts":true,
+    },
+    "mocha.requires": [
+        "ts-node/register"
+    ],
+    "mocha.files.glob": "test/**/*.ts"
+}

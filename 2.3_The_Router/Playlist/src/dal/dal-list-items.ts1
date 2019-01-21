@@ -1,0 +1,84 @@
+import { ListItem } from "list-item";
+
+export class ListItemsDal {
+    public map: Map<string, ListItem> = new Map<string, ListItem>();
+    constructor() {
+        this.map["1"] = {
+            songId: "1",
+            listId: "2",
+            id: "1",
+        };
+        this.map["2"] = {
+            songId: "1",
+            listId: "1",
+            id: "2",
+        };
+        this.map["3"] = {
+            songId: "2",
+            listId: "2",
+            id: "3",
+        };
+
+        this.map["4"] = {
+            songId: "3",
+            listId: "2",
+            id: "4",
+        };
+        this.map["5"] = {
+            songId: "3",
+            listId: "1",
+            id: "5",
+        };
+        this.map["6"] = {
+            songId: "1",
+            listId: "1",
+            id: "6",
+        };
+        this.map["7"] = {
+            songId: "2",
+            listId: "1",
+            id: "7",
+        };
+    }
+
+    public getItemsByPlaylistId(listId: string): ListItem[] {
+        let retList: ListItem[] = [];
+
+        for (let key in this.map) {
+            let item = this.map[key];
+            if (item.listId === listId) {
+                retList.push(item);
+            }
+        }
+        return retList;
+    }
+
+    public delItemsByPlaylistId(listId: string): ListItem[] {
+        let retList: ListItem[] = [];
+
+        for (let key in this.map) {
+            let item = this.map[key];
+            if (item.listId === listId) {
+                this.delItem(item.id);
+            }
+        }
+        return retList;
+    }
+    public getItemById(id: string): ListItem {
+        return this.map[id];
+    }
+
+    public delItem(itemId: string): void {
+        delete this.map[itemId];
+    }
+
+    public setItem(item): string {
+        item.id = "" + (this.count() + 1);
+        this.map[item.id] = item;
+        return item.id;
+    }
+
+    public count(): number {
+        return Object.keys(this.map).length;
+    }
+}

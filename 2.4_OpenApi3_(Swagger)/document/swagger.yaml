@@ -1,0 +1,99 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: Songs API direct
+    url: http://localhost:3000
+  - description: Songs API via Router
+    url: http://localhost:3080/api/songSvc
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: Simple Inventory API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: admins
+    description: Secured Admin-only calls
+  - name: developers
+    description: Operations available to regular developers
+paths:
+  /v1/songs:
+    get:
+      tags:
+        - developers
+      summary: searches song database
+      operationId: searchInventory
+      description:
+        By passing in the appropriate options, you can search for
+        available inventory in the system
+      parameters:
+        - in: query
+          name: id
+          description: pass an optional song Id 
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 50
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SongItem'
+        '400':
+          description: bad input parameter
+   
+components:
+  schemas:
+    SongItem:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: number
+          example: 2
+        name:
+          type: string
+          example: Poker Face
+        playCount:
+          type: number
+          example: 2358293
+        releaseDate:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+        artist:
+          $ref: '#/components/schemas/Artist'
+        playTimeSecs: 
+          type: number
+          example: 134
+        link:
+          type: string
+          example: '/storage/songs/poker.mp3'
+    Artist:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Lady Gaga
+        homePage:
+          type: string
+          format: url
+          example: 'https://www.ladygaga.com/'
+      type: object

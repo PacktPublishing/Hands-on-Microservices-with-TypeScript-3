@@ -1,0 +1,109 @@
+version: '2'
+services:
+
+  songs:
+    image: songs42
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - test-net
+    env_file:
+      - ./service-registry.env
+    depends_on:
+      - mongo
+      - redis
+      
+  frontend:
+    image: frontend
+    ports:
+      - "3001:3001"
+    restart: always
+    networks:
+      - test-net
+    env_file:
+      - ./service-registry.env
+
+  auth:
+    image: auth
+    ports:
+      - "3003:3003"
+    restart: always
+    networks:
+      - test-net
+    env_file:
+      - ./service-registry.env
+      
+  playlist:
+    image: playlist
+    ports:
+      - "3002:3002"
+    restart: always
+    networks:
+      - test-net
+    env_file:
+      - ./service-registry.env
+      
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 3017:27017
+    #environment:
+      #MONGO_INITDB_ROOT_USERNAME: root
+      #MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - test-net
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 3018:8081
+    #environment:
+      #ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      #ME_CONFIG_MONGODB_ADMINPASSWORD: example
+    networks:
+      - test-net
+      
+  nginx:
+    image: mynginx
+    networks:
+      - test-net
+    ports:
+      - 3080:3080
+    command: [nginx, '-g', 'daemon off;']
+    env_file:
+      - ./service-registry.env
+    depends_on:
+      - songs
+      - playlist
+      - frontend
+  redis:
+    image: redis
+    ports:
+      - 3020:6379
+    command: redis-server --appendonly yes
+    restart: always
+    networks:
+      - test-net
+
+  etcd:
+    image: bitnami/etcd
+    ports:
+      - 3021:2379
+    restart: always
+    networks:
+      - test-net
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+    volumes:
+      - etcd_data:/bitnami
+
+volumes:
+  etcd_data:
+    driver: local
+
+networks:
+  test-net:
+    driver: bridge

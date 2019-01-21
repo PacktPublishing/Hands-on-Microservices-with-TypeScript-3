@@ -1,0 +1,13 @@
+{
+  "extends": "tslint:latest",
+  "rules": {
+    "ordered-imports": false,
+    "no-inferrable-types": false,
+    "prefer-const":false,
+    "eofline":false,
+    "max-line-length":false,
+    "member-ordering":false,
+    "no-console":false,
+    "indent": false
+  }
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Remote Control</title>
+    <link rel="icon" href="icons/musical-note.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+    <script>
+    </script>
+
+    <br />
+    <div class="container border border-dark rounded bg-light">
+        <form>
+            <div class="form-group m-3" id="vueApp">
+                <div class="row">
+                    <div class="media">
+                        <img src="/icons/musical-note.png" class="align-self-end" style="height: 48px;width: 48px;">
+                        <div class="media-body align-self-end">
+                            <h2 class="mt-0">&nbsp;Music List:</h2>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div v-for="m in songs" class="row">
+
+                    <div class="col-md-5">
+                        <b>{{m.name}}</b> by {{m.artist}}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        var appData = new Vue({
+            el: '#vueApp',
+            data: {
+                songs: []
+            },
+            mounted: function () {
+                var self = this;
+                fetch("http://localhost:3000/v1/songs")
+                    .then((response) => {
+                        return response.text();
+                    }).then((text) => {
+                        let data = JSON.parse(text);
+                        let songList = [];
+
+                        for (const key in data.map) {
+                            songList.push(data.map[key]);
+                        }
+                        self.songs = songList;
+                    });
+            },
+            methods: {
+
+            }
+        })
+    </script>
+</body>
+
+</html>
