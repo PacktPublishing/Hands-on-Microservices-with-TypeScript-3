@@ -3,7 +3,7 @@ Hands-on Microservices with TypeScript 3 / Amit Bezalel, published by [Packt]
 
 ## samples prerequisites:
 For non-dockerized examples (sections 1-3):
-* NodeJS 10 or higher 
+* NodeJS 9.10 or higher 
 * Typescript (npm i typescript -g)
 * Mocha (npm i mocha -g)
 
