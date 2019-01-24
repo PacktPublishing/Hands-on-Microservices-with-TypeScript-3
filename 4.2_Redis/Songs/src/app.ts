@@ -32,30 +32,29 @@ async function main() {
     let logger = new Logger(conf.logLevel);
 
     let songs: SongDal = new SongDal(logger, mongoHost, mongoPort);
+    songs.populate();
 
     logger.debug("running with configuration: ", JSON.stringify(conf));
 
     let redis = new DalRedis(logger, redisHost, redisPort);
-    let rres = await redis.getAsync("mykey");
-    logger.debug("mykey value = ", rres);
     await redis.setAsync("mykey", "12345");
-    rres = await redis.getAsync("mykey");
+    let rres = await redis.getAsync("mykey");
     logger.debug("mykey value = ", rres);
 
     let app: express.Express = express();
 
-    app.get("/v1/songs", (req: express.Request, res: express.Response): any => {
+    app.get("/v1/songs", async (req: express.Request, res: express.Response) => {
         let urlParts = url.parse(req.url, true);
-        let query = urlParts.query;
+
         let id: string = req.query.id;
         if (id) {
-            let song = songs.getSongById(id);
+            let song = await songs.getSongById(id);
             res.send(song);
         } else if (req.query.q) {
-            let songQuery = req.query.q;
-            res.send(songs.getSongSearch(songQuery));
+            let query = req.query.q;
+            res.send(await songs.getSongSearch(query));
         } else {
-            res.send(songs.map);
+            res.send(await songs.getAllSongs());
         }
     });
 

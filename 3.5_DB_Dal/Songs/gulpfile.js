@@ -27,7 +27,7 @@ gulp.task("compile", function () {
 });
 
 gulp.task("copyContent", function () {
-	return gulp.src(["config.json"]).pipe(gulp.dest(outputFolder));
+	return gulp.src(["config.json","songs.json"]).pipe(gulp.dest(outputFolder));
 });
 
 gulp.task('default', gulp.series("clean", "lint", "compile", "copyContent"));

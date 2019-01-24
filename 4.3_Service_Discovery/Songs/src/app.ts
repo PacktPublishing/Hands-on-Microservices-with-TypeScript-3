@@ -22,7 +22,7 @@ async function main() {
 
     let redisHost = process.env["REDIS_SERVICE_HOST"] || "localhost";
     let redisPort = process.env["REDIS_SERVICE_PORT_RESP"] || "3020";
-    
+
     let mongoHost = process.env["MONGO_SERVICE_HOST"] || "localhost";
     let mongoPort = process.env["MONGO_SERVICE_PORT_TCP"] || "3017";
     let conf = await getConfig();

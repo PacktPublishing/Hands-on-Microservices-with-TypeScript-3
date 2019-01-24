@@ -7,18 +7,16 @@ export class SongDal {
     private db: mongoose.Connection;
     private logger: Logger;
     private songs: mongoose.Model<mongoose.Document>;
+    private songsModelSchema: mongoose.Schema;
     constructor(logger: Logger, host: string, port: number) {
         // Define a schema
-        let Schema = mongoose.Schema;
-
-        let songsModelSchema = new Schema({
+        this.songsModelSchema = new mongoose.Schema({
             name: String,
             id: String,
             artist: String,
         });
-        songsModelSchema.index({ name: "text", artist: "text" });
 
-        this.songs = mongoose.model("Songs", songsModelSchema);
+        this.songs = mongoose.model("Songs", this.songsModelSchema);
         // Set up default mongoose connection
 
         let mongoDB = "mongodb://" + host + ":" + port + "/demo1";
@@ -51,9 +49,14 @@ export class SongDal {
             name: doc["name"] || "",
             artist: doc["artist"] || "",
             link: doc["link"] || "",
+            fullName: doc["name"] + " " + doc["artist"],
         };
         return song;
     }
+    public async getAllSongs(): Promise<ISong[]> {
+        return this.getSongSearch(".*");
+    }
+
     public async getSongSearch(q: string): Promise<ISong[]> {
         let songs: ISong[] = [];
 

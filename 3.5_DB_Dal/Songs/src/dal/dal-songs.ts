@@ -8,22 +8,20 @@ export class SongDal {
     private db: mongoose.Connection;
     private logger: Logger;
     private songs: mongoose.Model<mongoose.Document>;
+    private songsModelSchema: mongoose.Schema;
     constructor(logger: Logger) {
         // Define a schema
-        let Schema = mongoose.Schema;
-
-        let songsModelSchema = new Schema({
+        this.songsModelSchema = new mongoose.Schema({
             name: String,
             id: String,
             artist: String,
         });
-        songsModelSchema.index({ name: "text", artist: "text" });
 
-        this.songs = mongoose.model("Songs", songsModelSchema);
+        this.songs = mongoose.model("Songs", this.songsModelSchema);
         // Set up default mongoose connection
 
         let mongoDB = "mongodb://127.0.0.1:3017/demo1";
-        mongoose.connect(mongoDB);
+        mongoose.connect(mongoDB, { useNewUrlParser: true });
         // Get Mongoose to use the global promise library
         mongoose.Promise = global.Promise;
         // Get the default connection
@@ -34,8 +32,11 @@ export class SongDal {
             this.logger.error("MongoDB connection error:", err);
         });
     }
+
+    // populate adds all songs to the database, it is meant for demo purposes only
     public async populate() {
         this.map = new Map();
+        this.songs = mongoose.model("Songs", this.songsModelSchema);
         let contents = fs.readFileSync("songs.json");
         let songArr: ISong[] = JSON.parse(contents.toString());
 
@@ -44,6 +45,7 @@ export class SongDal {
     public async delete() {
         this.db.dropCollection("songs");
     }
+
     private mongo2song(doc: mongoose.Document): ISong {
         let song = {
             id: doc["id"],
@@ -51,9 +53,14 @@ export class SongDal {
             name: doc["name"] || "",
             artist: doc["artist"] || "",
             link: doc["link"] || "",
+            fullName: doc["name"] + " " + doc["artist"],
         };
         return song;
     }
+    public async getAllSongs(): Promise<ISong[]> {
+        return this.getSongSearch(".*");
+    }
+
     public async getSongSearch(q: string): Promise<ISong[]> {
         let songs: ISong[] = [];
 

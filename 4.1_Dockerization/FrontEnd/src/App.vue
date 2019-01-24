@@ -81,8 +81,15 @@ import "bootstrap-vue/dist/bootstrap-vue.css";
 import * as request from "request";
 // @ts-ignore
 import * as Autocomplete from "vuejs-auto-complete";
-Vue.use(BootstrapVue);
+import { setTimeout } from "timers";
 
+interface ISong {
+  name: string;
+  artist: string;
+  id: string;
+}
+
+Vue.use(BootstrapVue);
 @Component({
   components: {
     Autocomplete
@@ -93,7 +100,7 @@ export default class App extends Vue {
   public newPlaylistName: string = "";
   public selectedPlaylist = null;
   public selectedSong: string = "";
-  public songs: Dictionary<any> = {};
+  public songs: { [id: string]: ISong } = {};
   private playlistApiBase: string = "http://localhost:3080/api/listSvc/";
   private songsApiBase: string = "http://localhost:3080/api/songSvc/";
   public updateUserLists(): void {
@@ -109,13 +116,17 @@ export default class App extends Vue {
 
           let lsongs = [];
           for (let songId of plist.songIds) {
-            lsongs.push(that.songs[songId]);
+            let song = that.songs[songId];
+            if (song) {
+              lsongs.push(song);
+            }
           }
           plist.songs = lsongs;
         }
       }
     );
   }
+
   public updateSongList(): void {
     request.get(this.songsApiBase + "v1/songs", (error, response, body) => {
       const obj = JSON.parse(body);
@@ -200,7 +211,9 @@ export default class App extends Vue {
 
   public mounted(): void {
     this.updateSongList();
-    this.updateUserLists();
+    setTimeout(() => {
+      this.updateUserLists();
+    }, 1000);
   }
 }
 </script>

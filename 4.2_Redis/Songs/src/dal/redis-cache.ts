@@ -11,8 +11,6 @@ export class DalRedis {
 
     constructor(logger: Logger, host: string, port: number) {
         let client = Redis.createClient(port, host, null);
-        // if you'd like to select database 3, instead of 0 (default), call
-        // client.select(3, function() { /* ... */ });
 
         client.on("error", (err) => {
             logger.error("Error in redis data layer: ", err);

@@ -7,6 +7,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/dist/app.js",
+            "cwd": "${workspaceFolder}/dist/",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Jasmine Tests",
             "program": "${workspaceFolder}/node_modules/jasmine/bin/jasmine",
             "runtimeArgs": [
@@ -16,16 +26,6 @@
                 "${workspaceFolder}/test/*.ts"
             ],
             "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/dist/app.js",
-            "cwd": "${workspaceFolder}/dist/",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
         }
     ]
 }

@@ -24,33 +24,28 @@ async function main() {
     let logger = new Logger(conf.logLevel);
     let songs: SongDal = new SongDal(logger);
 
-    logger.debug("running with configuration: ", JSON.stringify(conf));
+    // add all songs to database for this sample:
+    songs.populate();
 
-    // now using a cors header (allow origin)
+    logger.debug("running with configuration: ", JSON.stringify(conf));
     let app: express.Express = express();
 
-    let corsOptions: cors.CorsOptions = {
-        optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-        origin: "http://localhost:3001",
-    };
-
-    app.use(cors(corsOptions));
-    app.get("/v1/songs", (req: express.Request, res: express.Response): any => {
+    app.get("/v1/songs", async (req: express.Request, res: express.Response) => {
         let urlParts = url.parse(req.url, true);
-        let id: string = req.query.id;
 
+        let id: string = req.query.id;
         if (id) {
-            let song = songs.getSongById(id);
+            let song = await songs.getSongById(id);
             res.send(song);
         } else if (req.query.q) {
             let query = req.query.q;
-            res.send(songs.getSongSearch(query));
+            res.send(await songs.getSongSearch(query));
         } else {
-            res.send(songs.map);
+            res.send(await songs.getAllSongs());
         }
     });
 
-    app.listen(3000, () => {
+    app.listen("3000", () => {
         logger.info("Service listening on port 3000!");
     });
 

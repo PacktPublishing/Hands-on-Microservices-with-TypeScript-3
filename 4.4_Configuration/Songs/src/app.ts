@@ -23,15 +23,14 @@ async function main() {
 
     let redisHost = process.env["REDIS_SERVICE_HOST"] || "localhost";
     let redisPort = process.env["REDIS_SERVICE_PORT_RESP"] || "3020";
-    
+
     let mongoHost = process.env["MONGO_SERVICE_HOST"] || "localhost";
     let mongoPort = process.env["MONGO_SERVICE_PORT_TCP"] || "3017";
-   
+
     let etcdHost = process.env["ETCD_SERVICE_HOST"] || "localhost";
-    let etcdPort = process.env["ETCD_SERVICE_PORT_HTTP"] || "3017"; 
+    let etcdPort = process.env["ETCD_SERVICE_PORT_HTTP"] || "3021";
 
-
-    let confDal = new Etcd(etcdHost+":"+etcdPort);
+    let confDal = new Etcd(etcdHost + ":" + etcdPort);
     await confDal.populate();
 
     let conf = await confDal.getConfig();
