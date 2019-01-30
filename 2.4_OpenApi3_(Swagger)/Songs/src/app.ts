@@ -28,7 +28,7 @@ function main(): void {
         // now using a cors header (allow origin)
         let app: express.Express = express();
 
-	// open up cors to all servers (just for swagger to work without a router)
+        // open up cors to all servers (just for swagger to work without a router)
         app.use(cors());
         app.get("/v1/songs", (req: express.Request, res: express.Response): any => {
             let urlParts = url.parse(req.url, true);
@@ -37,8 +37,11 @@ function main(): void {
             if (id) {
                 let song = songs.getSongById(id);
                 res.send(song);
+            } else if (req.query.q) {
+                let query1 = req.query.q;
+                res.send(songs.getSongSearch(query1));
             } else {
-                res.send(songs);
+                res.send(songs.map);
             }
         });
 

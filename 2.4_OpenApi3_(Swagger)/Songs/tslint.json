@@ -10,6 +10,7 @@
     "no-console":false,
     "object-literal-sort-keys":false,
     "no-implicit-dependencies":false,
-    "indent":false
+    "indent":false,
+    "forin":false
   }
 }

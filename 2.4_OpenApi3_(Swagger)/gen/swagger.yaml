@@ -15,17 +15,17 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: admins
+  - name: Admins
     description: Secured Admin-only calls
-  - name: developers
-    description: Operations available to regular developers
+  - name: Users
+    description: Operations available to regular users
 paths:
-  /v1/songs:
+  /v1/songs?id:
     get:
       tags:
-        - developers
-      summary: searches song database
-      operationId: searchInventory
+        - Users
+      summary: fetch a song by id
+      operationId: findSongById
       description:
         By passing in the appropriate options, you can search for
         available inventory in the system
@@ -33,6 +33,33 @@ paths:
         - in: query
           name: id
           description: pass an optional song Id 
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SongItem'
+        '400':
+          description: bad input parameter
+  /v1/songs/?q:
+    get:
+      tags:
+        - Users
+      summary: searches song database
+      operationId: searchSongs
+      description:
+        By passing in the appropriate options, you can search for
+        available inventory in the system
+      parameters:
+        - in: query
+          name: q
+          description: the search query
           required: false
           schema:
             type: string
@@ -55,7 +82,6 @@ paths:
                   $ref: '#/components/schemas/SongItem'
         '400':
           description: bad input parameter
-   
 components:
   schemas:
     SongItem:
