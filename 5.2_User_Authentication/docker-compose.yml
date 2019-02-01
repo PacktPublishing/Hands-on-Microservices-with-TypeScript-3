@@ -81,6 +81,7 @@ services:
       - playlist
       - auth
       - frontend
+   
   redis:
     image: redis
     ports:
@@ -89,7 +90,18 @@ services:
     restart: always
     networks:
       - test-net
-
+  redis-commander:
+    image: rediscommander/redis-commander
+    ports:
+      - 3022:8081
+    restart: always
+    networks:
+      - test-net
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+      
   etcd:
     image: bitnami/etcd
     ports:

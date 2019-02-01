@@ -10,6 +10,8 @@ import * as express from "express";
 import * as process from "process";
 import * as url from "url";
 import * as ejwt from "express-jwt";
+import * as cookieParser from "cookie-parser";
+
 let mysecret = "my-secret-423895230789@!#$hgfjksd2fgvjk3721356";
 
 // convert fs.readFile into Promise version of same
@@ -51,9 +53,21 @@ async function main() {
     logger.debug("running with configuration: ", JSON.stringify(conf));
 
     let app: express.Express = express();
-    // app.use(ejwt({ secret: mysecret, userProperty: "idtoken" }));
+    app.use(cookieParser());
 
-
+    app.use(ejwt({
+        secret: mysecret,
+        getToken: (req) => {
+            if (req.headers.authorization && req.headers.authorization.split(" ")[0] === "Bearer") {
+                return req.headers.authorization.split(" ")[1];
+            } else if (req.query && req.query.token) {
+                return req.query.token;
+            } else if (req.cookies["auth_token"]) {
+                return req.cookies["auth_token"];
+            }
+            return null;
+        },
+    }));
 
     app.get("/v1/songs", async (req: express.Request, res: express.Response) => {
         let urlParts = url.parse(req.url, true);

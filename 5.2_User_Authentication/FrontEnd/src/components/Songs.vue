@@ -73,7 +73,6 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import BootstrapVue from "bootstrap-vue";
@@ -83,24 +82,25 @@ import * as request from "request";
 // @ts-ignore
 import * as Autocomplete from "vuejs-auto-complete";
 import { setTimeout } from "timers";
-import { Hash } from "crypto";
-import { Dictionary } from "vue-router/types/router";
+
+interface ISong {
+  name: string;
+  artist: string;
+  id: string;
+}
 import { promisify } from "util";
 Vue.use(BootstrapVue);
-
 @Component({
   components: {
     Autocomplete
   }
 })
 export default class Songs extends Vue {
-  // @Prop() private msg!: string;
-
   public playlists: any[] = [];
   public newPlaylistName: string = "";
   public selectedPlaylist = null;
   public selectedSong: string = "";
-  public songs: Dictionary<any> = {};
+  public songs: { [id: string]: ISong } = {};
   private playlistApiBase: string = "http://localhost:3080/api/listSvc/";
   private songsApiBase: string = "http://localhost:3080/api/songSvc/";
 
@@ -233,7 +233,7 @@ export default class Songs extends Vue {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 .del-icon {
   padding: 4px;
 }

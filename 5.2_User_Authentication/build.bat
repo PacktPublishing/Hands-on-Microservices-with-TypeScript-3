@@ -6,3 +6,5 @@ cd songs && docker build . -t songs52
 cd ..
 cd router && docker build . -t mynginx52
 cd ..
+cd playlist && docker build . -t playlist52
+cd ..

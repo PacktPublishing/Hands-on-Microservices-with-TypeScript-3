@@ -1,4 +1,4 @@
-// https://console.developers.google.com/apis/credentials?project=strange-passage-227507
+// console url: https://console.developers.google.com/apis/credentials?project=<proj>
 const googleConfig = {
     clientId: "<clientId>",
     clientSecret: "<clientSecret>",
