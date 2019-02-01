@@ -4,16 +4,13 @@ const googleConfig = {
     clientSecret: "<clientSecret>",
     redirect: "http://localhost:3003/auth/google/callback", // this must match your google api settings
 };
-let mysecret = "my-secret-423895230789@!#$hgfjksd2fgvjk3721356";
 
 import { Logger } from "./logger";
 import * as express from "express";
 import * as passport from "passport";
-// import * as passportJwt from "passport-jwt";
 import * as session from "express-session";
 import * as jwt from "jsonwebtoken";
 import * as ejwt from "express-jwt";
-import { url } from "inspector";
 import * as querystring from "querystring";
 function main(): void {
     let app: express.Express = express();
@@ -29,13 +26,13 @@ function main(): void {
 
     app.use(express.static("public"));
 
+    let mysecret = "my-secret-423895230789@!#$hgfjksd2fgvjk3721356";
     app.use(session({
         secret: mysecret,
     }));
 
     app.use(passport.initialize());
     app.use(passport.session()); // persistent login sessions
-    // app.use(ejwt({ secret: mysecret, userProperty: "idtoken" }).unless({ path: ["/auth/google", "/auth/google/callback"] }));
 
     const {
         Issuer,
@@ -79,26 +76,11 @@ function main(): void {
             pic: tokenset.claims.picture,
         };
 
-        console.log("pic: ", tokenset.claims.picture);
-        console.log(">>>> returning: ", JSON.stringify(user));
-
         return done(null, user);
     }));
 
-    // GET /auth/google
-    //   Use passport.authenticate() as route middleware to authenticate the
-    //   request.  The first step in Google authentication will involve
-    //   redirecting the user to google.com.  After authorization, Google
-    //   will redirect the user back to this application at /auth/google/callback
-
-    // app.get("/auth/google", (req, res, next) => {
-    //     logger.debug("aaaa");
-    //     res.end("ok");
-    // });
-
     app.get("/auth/google",
         passport.authenticate("oidc", {
-            // session: false,
             scope: ["https://www.googleapis.com/auth/plus.login"],
         }));
 
@@ -110,36 +92,25 @@ function main(): void {
     app.get("/auth/google/callback",
         passport.authenticate("oidc", {
             // optional: //successRedirect: '/',
-            // session: false,
             failureRedirect: "/login",
-        },
-            // , (err, res) => {
-            //     if (err) {
-            //         logger.error(err);
-            //         res.send(401, "unauthorized");
-            //     }
-            //     // res.redirect("localhost:3004/#/home?id_token=");
-            //     // res.send("ok").end();
-            // }
-        ),
+        }),
         // on success function:
         (req, res) => {
 
             let userinfo = req.user;
-            let token = jwt.sign({ id: userinfo.sub, name: userinfo.name }, mysecret);
-            res.cookie("idtoken", token, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true });
-            let query = querystring.stringify({ query: userinfo.name, picture: userinfo.pic });
 
-            // return res.redirect("/#/home?id_token=" + tokens.tokens.id_token);
+            // creating a new token using HS256 (symmetric signature) with a hard coded key
+            // in reality you should use RS256 and some certificate...
+            let token = jwt.sign({ id: userinfo.sub, name: userinfo.name }, mysecret);
+
+            // setting the token as a cookie in the browser that is HttpOnly = JS code can't touch it.
+            res.cookie("auth_token", token, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie("access_token", token, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true });
+            // providing the UI with a name to greet, and sending the browser to the home:
+            let query = querystring.stringify({ id: userinfo.id, name: userinfo.name });
             res.redirect("http://localhost:3080/#/home?" + query);
-            // res.send("ok").end();
         });
 
-    // app.get("/index.html", (req, res) => {
-    //     let user = req.session.passport.user;
-    //     res.send("<html><body><H1> Hello, " + user.name + "<H1></body></html>");
-    //     res.end();
-    // });
     let port = 3003;
     app.on("error", (e) => {
         logger.error("couldn't open port " + port, e);

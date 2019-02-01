@@ -85,6 +85,7 @@ import * as Autocomplete from "vuejs-auto-complete";
 import { setTimeout } from "timers";
 import { Hash } from "crypto";
 import { Dictionary } from "vue-router/types/router";
+import { promisify } from "util";
 Vue.use(BootstrapVue);
 
 @Component({
@@ -93,7 +94,7 @@ Vue.use(BootstrapVue);
   }
 })
 export default class Songs extends Vue {
-  @Prop() private msg!: string;
+  // @Prop() private msg!: string;
 
   public playlists: any[] = [];
   public newPlaylistName: string = "";
@@ -102,37 +103,54 @@ export default class Songs extends Vue {
   public songs: Dictionary<any> = {};
   private playlistApiBase: string = "http://localhost:3080/api/listSvc/";
   private songsApiBase: string = "http://localhost:3080/api/songSvc/";
-  public updateUserLists(): void {
-    let that = this;
-    request.get(
-      this.playlistApiBase + "v1/playlists?userId=2",
-      (error, response, body) => {
-        const obj = JSON.parse(body);
-        this.playlists = obj;
-        for (let plist of this.playlists) {
-          plist.text = plist.name;
-          plist.value = plist.id;
 
-          let lsongs = [];
-          for (let songId of plist.songIds) {
-            let song = that.songs[songId];
-            if (song && song.id) {
-              lsongs.push(song);
+  public updateUserLists(): Promise<Error> {
+    return new Promise((resolve, reject) => {
+      let that = this;
+      request.get(
+        this.playlistApiBase + "v1/playlists?userId=2",
+        (err, response, body) => {
+          if (err) {
+            reject(err);
+          } else {
+            const obj = JSON.parse(body);
+            this.playlists = obj;
+            for (let plist of this.playlists) {
+              plist.text = plist.name;
+              plist.value = plist.id;
+
+              let lsongs = [];
+              for (let songId of plist.songIds) {
+                let song = that.songs[songId];
+                if (song && song.id) {
+                  lsongs.push(song);
+                }
+              }
+              plist.songs = lsongs;
             }
+            resolve(undefined);
           }
-          plist.songs = lsongs;
         }
-      }
-    );
-  }
-  public updateSongList(): void {
-    request.get(this.songsApiBase + "v1/songs", (error, response, body) => {
-      const obj = JSON.parse(body);
-      for (let song of obj) {
-        this.songs[song.id] = song;
-      }
+      );
     });
   }
+
+  public updateSongList(): Promise<Error> {
+    return new Promise((resolve, reject) => {
+      request.get(this.songsApiBase + "v1/songs", (err, response, body) => {
+        if (err) {
+          reject(err);
+        } else {
+          const obj = JSON.parse(body);
+          for (let song of obj) {
+            this.songs[song.id] = song;
+          }
+          resolve(undefined);
+        }
+      });
+    });
+  }
+
   public addSongToList(songId: string, listId: string) {
     let that = this;
     request.post(
@@ -207,9 +225,9 @@ export default class Songs extends Vue {
     );
   }
 
-  public mounted(): void {
-    this.updateSongList();
-    this.updateUserLists();
+  public async mounted() {
+    await this.updateSongList();
+    await this.updateUserLists();
   }
 }
 </script>

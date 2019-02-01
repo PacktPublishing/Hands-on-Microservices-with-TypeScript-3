@@ -18,6 +18,7 @@ export default new Router({
       path: '/home',
       name: 'home',
       component: Home,
+      props: (route) => ({ userId: route.query.id, userName: route.query.name }),
     },
   ],
 });

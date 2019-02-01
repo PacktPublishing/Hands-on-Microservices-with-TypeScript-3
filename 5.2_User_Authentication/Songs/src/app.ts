@@ -9,6 +9,8 @@ import { IConfiguration } from "./types/config";
 import * as express from "express";
 import * as process from "process";
 import * as url from "url";
+import * as ejwt from "express-jwt";
+let mysecret = "my-secret-423895230789@!#$hgfjksd2fgvjk3721356";
 
 // convert fs.readFile into Promise version of same
 const readFile = util.promisify(fs.readFile);
@@ -26,7 +28,7 @@ async function main() {
 
     let mongoHost = process.env["MONGO_SERVICE_HOST"] || "localhost";
     let mongoPort = process.env["MONGO_SERVICE_PORT_TCP"] || "3017";
-	
+
     let etcdHost = process.env["ETCD_SERVICE_HOST"] || "localhost";
     let etcdPort = process.env["ETCD_SERVICE_PORT_HTTP"] || "3021";
 
@@ -43,10 +45,15 @@ async function main() {
 
     let songs: SongDal = new SongDal(logger, mongoHost, Number.parseInt(mongoPort, 10));
 
+    songs.delete();
+    songs.populate();
     logger.info("loglevel:", logger.logLevel);
     logger.debug("running with configuration: ", JSON.stringify(conf));
 
     let app: express.Express = express();
+    // app.use(ejwt({ secret: mysecret, userProperty: "idtoken" }));
+
+
 
     app.get("/v1/songs", async (req: express.Request, res: express.Response) => {
         let urlParts = url.parse(req.url, true);
@@ -63,7 +70,7 @@ async function main() {
         }
     });
 
-    app.listen("0.0.0.0:3000", () => {
+    app.listen(3000, () => {
         logger.info("Service listening on port 3000!");
     });
 

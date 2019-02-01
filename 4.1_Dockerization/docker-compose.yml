@@ -18,7 +18,10 @@ services:
     restart: always
     networks:
       - test-net
-    
+    depends_on:
+      - songs
+      - playlist
+      
   playlist:
     image: playlist
     ports:
