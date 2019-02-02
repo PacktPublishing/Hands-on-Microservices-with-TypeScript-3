@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
     <div class="d-flex flex-row centered">
       <img class="p-2" src="./assets/musical-note.png" style="height: 64px;width: 64px;">
       <h1 class="p-2">Playlists Manager</h1>
@@ -21,7 +20,7 @@
           </div>
         </div>
         <div class="d-flex flex-row">
-          <div class="p-2 bold">Pick song:</div>
+          <div class="p-2 bold">Pick a song:</div>
           <div class="p-2">
             <!-- clear-button-icon="clear-icon" -->
             <autocomplete
@@ -82,8 +81,15 @@ import "bootstrap-vue/dist/bootstrap-vue.css";
 import * as request from "request";
 // @ts-ignore
 import * as Autocomplete from "vuejs-auto-complete";
-Vue.use(BootstrapVue);
+import { setTimeout } from "timers";
 
+interface ISong {
+  name: string;
+  artist: string;
+  id: string;
+}
+import { promisify } from "util";
+Vue.use(BootstrapVue);
 @Component({
   components: {
     Autocomplete
@@ -94,35 +100,55 @@ export default class App extends Vue {
   public newPlaylistName: string = "";
   public selectedPlaylist = null;
   public selectedSong: string = "";
-  public songs: any[] = [];
+  public songs: { [id: string]: ISong } = {};
   private playlistApiBase: string = "http://localhost:3080/api/listSvc/";
   private songsApiBase: string = "http://localhost:3080/api/songSvc/";
-  public updateUserLists(): void {
-    let that = this;
-    request.get(
-      this.playlistApiBase + "v1/playlists?userId=2",
-      (error, response, body) => {
-        const obj = JSON.parse(body);
-        this.playlists = obj;
-        for (let plist of this.playlists) {
-          plist.text = plist.name;
-          plist.value = plist.id;
 
-          let lsongs = [];
-          for (let songId of plist.songIds) {
-            lsongs.push(that.songs[songId]);
+  public updateUserLists(): Promise<Error> {
+    return new Promise((resolve, reject) => {
+      let that = this;
+      request.get(
+        this.playlistApiBase + "v1/playlists?userId=2",
+        (err, response, body) => {
+          if (err) {
+            reject(err);
+          } else {
+            const obj = JSON.parse(body);
+            this.playlists = obj;
+            for (let plist of this.playlists) {
+              plist.text = plist.name;
+              plist.value = plist.id;
+
+              let lsongs = [];
+              for (let songId of plist.songIds) {
+                let song = that.songs[songId];
+                if (song && song.id) {
+                  lsongs.push(song);
+                }
+              }
+              plist.songs = lsongs;
+            }
+            resolve(undefined);
           }
-          plist.songs = lsongs;
         }
-      }
-    );
-  }
-  public updateSongList(): void {
-    request.get(this.songsApiBase + "v1/songs", (error, response, body) => {
-      const obj = JSON.parse(body);
-      this.songs = obj;
+      );
     });
   }
+
+  public updateSongList(): Promise<Error> {
+    return new Promise((resolve, reject) => {
+      request.get(this.songsApiBase + "v1/songs", (err, response, body) => {
+        if (err) {
+          reject(err);
+        } else {
+          const obj = JSON.parse(body);
+          this.songs = obj;
+          resolve(undefined);
+        }
+      });
+    });
+  }
+
   public addSongToList(songId: string, listId: string) {
     let that = this;
     request.post(
@@ -197,9 +223,9 @@ export default class App extends Vue {
     );
   }
 
-  public mounted(): void {
-    this.updateSongList();
-    this.updateUserLists();
+  public async mounted() {
+    await this.updateSongList();
+    await this.updateUserLists();
   }
 }
 </script>

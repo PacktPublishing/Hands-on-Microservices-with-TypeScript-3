@@ -16,6 +16,7 @@ For examples on sections 4-5:
 
 for non-docker examples (sections 1-3):
 * go into each service directory that has a package.json file in it, and install dependencies (npm install) there can be up to 4 such service directories in a single video code, but most have only one.
+* run gulp in songs & playlist directories
 * use run.bat to run the example, or run similar commands on mac cmdline.
 
 for dockerized examples (sections 4-5) build container images 
